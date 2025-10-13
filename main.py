@@ -12,16 +12,18 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License."""
 
+
 import sys
+import os
 from simple_term_menu import TerminalMenu
-from chat import chat_with_bot
-from search_anime import search_anime
-from rcm_system import recommend_anime
-from watch_list import update_watchlist, list_watchlist
-from watch_anime import watch_anime
-from read_light_novel import read_light_novel
-from chat import add_to_watchlist_func
-from genre_manager import add_genre, remove_genre, list_genres, clear_genres
+from features.chat import chat_with_bot
+from features.search_anime import search_anime
+from features.rcm_system import recommend_anime
+from features.watch_list import update_watchlist, list_watchlist
+from features.watch_anime import watch_anime
+from features.read_light_novel import read_light_novel
+from features.chat import add_to_watchlist_func
+from features.genre_manager import add_genre, remove_genre, list_genres, clear_genres
 
 
 

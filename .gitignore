@@ -2,6 +2,3 @@
 /.venv
 /__pycache__
 /anime.csv
-/history.json
-/user_like_genre.json
-/watchlist.json
