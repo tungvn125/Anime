@@ -15,6 +15,7 @@ limitations under the License."""
 
 import sys
 import os
+import subprocess
 from simple_term_menu import TerminalMenu
 from features.chat import chat_with_bot
 from features.search_anime import search_anime
@@ -32,6 +33,7 @@ def main():
     """
     Main function to handle command-line arguments.
     """
+
     if len(sys.argv) > 1:
         command = sys.argv[1]
         print("All the watchlist modules are still in beta testing phase, please report any issues to the developer.")
@@ -52,6 +54,11 @@ def main():
         elif command == "-c" or command == "--chat":
             chat_with_bot()
         elif command == "-w" or command == "--watch":
+            # Ani-cli package check
+            try:
+                subprocess.run(["ani-clidd", "--version"], check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            except (subprocess.CalledProcessError, FileNotFoundError):
+                print("Error: 'ani-clidd' is not installed or not found in PATH. Please install it from:  https://github.com/pystardust/ani-cli")
             if len(sys.argv) > 2:
                 watch_anime(' '.join(sys.argv[2:]))
             else:
@@ -89,12 +96,12 @@ def main():
             print("       -s, --search <anime>       Search for an anime")
             print("       -rcm, --recommend <anime>  Get anime recommendations")
             print("       -a, --add <anime>          Add an anime to your watchlist")
-            print("       -u, --update <anime>       Update your watchlist")
-            print("       -l, --list, -ls <anime>    List your watchlist")    
-            print("       -c, --chat <anime>         Chat with the bot")
+            print("       -u, --update <anime>       Update your watchlist(not working yet)")
+            print("       -l, --list, -ls            List your watchlist")    
+            print("       -c, --chat                 Chat with the bot")
             print("       -w, --watch <anime>        Watch an anime")
-            print("       -r, --read <anime>         Read a light novel")
-            print("       -h, --help <anime>         Show this help message\n")
+            print("       -r, --read <light novel>   Read a light novel")
+            print("       -h, --help                 Show this help message\n")
             print("Example: python main.py -s Silent Witch")
 
         else:
