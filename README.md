@@ -69,4 +69,4 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for details.
 
 ---
 > “Anime is not just a genre, it’s a way of life.”  
-> — Github copilot
+> — Github copilot —
