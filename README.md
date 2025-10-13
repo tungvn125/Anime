@@ -54,8 +54,7 @@ Successfully tested on Arch linux
 
 ## Documentation
 
-- See the [Wiki](https://github.com/tungvn125/Anime/wiki) for guides and advanced usage
-- API reference in the `docs/` folder
+- not yet
 
 ## Contributing
 
@@ -70,4 +69,4 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for details.
 
 ---
 > “Anime is not just a genre, it’s a way of life.”  
-> — Github copilot
+> — Github copilot —
