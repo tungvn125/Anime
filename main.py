@@ -91,7 +91,7 @@ def main():
             elif choice[choice_index] == "Exit":
                 return
         elif command == "-h" or command == "--help":
-            print("usage): python main.py [command]")
+            print("usage: python main.py [command]")
             print("operations:")
             print("       -s, --search <anime>       Search for an anime")
             print("       -rcm, --recommend <anime>  Get anime recommendations")
