@@ -54,8 +54,7 @@ Successfully tested on Arch linux
 
 ## Documentation
 
-- See the [Wiki](https://github.com/tungvn125/Anime/wiki) for guides and advanced usage
-- API reference in the `docs/` folder
+- not yet
 
 ## Contributing
 
