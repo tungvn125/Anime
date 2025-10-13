@@ -18,7 +18,7 @@ import time
 import webbrowser
 from mal import AnimeSearch
 from simple_term_menu import TerminalMenu
-from watch_anime import watch_anime
+from features.watch_anime import watch_anime
 
 
 def search_anime():

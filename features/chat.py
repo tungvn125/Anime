@@ -17,7 +17,7 @@ import json
 from dotenv import load_dotenv
 import google.generativeai as genai
 from google.generativeai import types
-from watch_list import get_watchlist, save_watchlist
+from features.watch_list import get_watchlist, save_watchlist
 
 # Định nghĩa các hàm công cụ
 
@@ -167,7 +167,7 @@ def chat_with_bot():
 
         print("Trợ lý anime đã sẵn sàng. Cậu có thể bắt đầu trò chuyện (gõ 'quit' để kết thúc).")
 
-        # Lời chào đầu tiên nếu là một cuộc hành trình mới
+        
         if not initial_history_from_file:
             initial_prompt = (
                 "Bạn là một trợ lý anime. Bạn có thể giúp user nhiều việc "
@@ -229,9 +229,7 @@ def chat_with_bot():
                             result = add_to_watchlist_func(anime_title)
                             print(f"Trợ lý: {result}")
                             # Gửi kết quả của hàm trở lại mô hình
-                            chat.send_message(
-                                types.FunctionResponse(name="add_to_watchlist_func", response={"result": result})
-                            )
+                            chat.send_message([{"function_response": {"name": "get_user_like_genre", "response": {"result": result}}}])
                             function_call_handled = True
                             break # Đã xử lý function_call, thoát vòng lặp parts
                         else:
@@ -271,7 +269,7 @@ def chat_with_bot():
             json.dump(serialized_history, f, ensure_ascii=False, indent=4)
             print("Lịch sử trò chuyện đã được lưu lại trong 'history.json'.")
     except Exception as e:
-        print(f"Ôi, có một sự cố ma thuật đã xảy ra: {e}")
+        print(f"Có một sự cố đã xảy ra: {e}")
 
 if __name__ == "__main__":
     chat_with_bot()

@@ -24,23 +24,23 @@ pip install -r requirements.txt
 ```
 - After installation, your project folder should look like this:
 ```
-Anime/
-    features/
+Anime/                      # Project folder
+    features/               # Feature Folder
         __init__.py
-        chat.py
-        genre_manager.py
-        rcm_system.py
-        read_light_novel.py
-        search_anime.py
-        watch_anime.py
-        watch_list.py
-    .env
-    .gitignore
-    CONTRIBUTING.md
-    LICENSE
-    main.py
-    README.md
-    requirements.txt
+        chat.py                 # Chat with bot 
+        genre_manager.py        # Genre
+        rcm_system.py           # Recommend 
+        read_light_novel.py     # Read light novel(beta)
+        search_anime.py         # Search anime(MAL)
+        watch_anime.py          # Watch anime(ani-cli)
+        watch_list.py           # Watchlist manager
+    .env                    # Your gemini key here
+    .gitignore              # not thing
+    CONTRIBUTING.md         # Contributing
+    LICENSE                 # License
+    main.py                 # MAIN (run this)
+    README.md               # Read this
+    requirements.txt        # Packages needed
 ```
 ## Usage
 
@@ -69,6 +69,5 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for details.
 
 
 ---
-
 > “Anime is not just a genre, it’s a way of life.”  
-> — Unknown Otaku
+> — Github copilot
