@@ -21,18 +21,18 @@ from features.watch_list import get_watchlist, save_watchlist
 from features.watch_anime import watch_anime
 from mal import AnimeSearch
 
-# Định nghĩa các hàm công cụ
+# Define tool functions
 
 get_user_like_genre_func = {
     "name": "get_user_like_genre",
-    "description": "Lấy thể loại anime mà người dùng thích.",
+    "description": "Get the anime genres the user likes.",
     "parameters": {
         "type": "object",
         "properties": {
             "genres": {
                 "type": "array",
                 "items": {"type": "string"},
-                "description": "Danh sách thể loại mà người dùng thích."
+                "description": "List of genres the user likes."
             }
         },
         "required": ["genres"]
@@ -41,13 +41,13 @@ get_user_like_genre_func = {
 
 add_to_watchlist_declaration = {
     "name": "add_to_watchlist_func",
-    "description": "Thêm một anime vào danh sách xem.",
+    "description": "Add an anime to the watchlist.",
     "parameters": {
         "type": "object",
         "properties": {
             "anime_title": {
                 "type": "string",
-                "description": "Tiêu đề của anime cần thêm vào danh sách xem."
+                "description": "The title of the anime to add to the watchlist."
             }
         },
         "required": ["anime_title"]
@@ -55,7 +55,7 @@ add_to_watchlist_declaration = {
 }
 quit_func = {
     "name": "quit_chat",
-    "description": "Kết thúc phiên trò chuyện với trợ lý anime.",
+    "description": "End the chat session with the anime assistant.",
     "parameters": {
         "type": "object",
         "properties": {}
@@ -63,34 +63,34 @@ quit_func = {
 }
 watch_anime_func = {
     "name": "watch_anime",
-    "description": "Bắt đầu xem một anime.",
+    "description": "Start watching an anime.",
     "parameters": {
         "type": "object",
         "properties": {
             "anime_title": {
                 "type": "string",
-                "description": "Tiêu đề của anime cần xem."
+                "description": "The title of the anime to watch."
             }
         },
         "required": ["anime_title"]
     }
 }                
 def find_n_watch_anime(anime_title):
-    """Tìm và mở anime để xem."""
+    """Find and open an anime to watch."""
     try:
         watch_anime(anime_title)
-        return f"Đang mở anime '{anime_title}' để xem."
+        return f"Opening anime '{anime_title}' to watch."
     except Exception as e:
-        #return f"Không thể mở anime '{anime_title}'"
+        # If opening fails, try to search and fallback to the first result
         search = AnimeSearch(anime_title)
         if search.results:
             first_result = search.results[0]
             title = first_result.title
-            print(f"Không thể mở anime '{anime_title}'. Tuy nhiên, tôi đã tìm thấy: {title}")
+            print(f"Could not open '{anime_title}'. However, I found: {title}")
             watch_anime(title)
-            return f"Đang mở anime '{title}' để xem."
+            return f"Opening anime '{title}' to watch."
         else:
-            return f"Không thể tìm thấy anime '{anime_title}'."
+            return f"Could not find anime '{anime_title}'."
 
         
 def add_to_watchlist_func(anime_title):
@@ -159,17 +159,17 @@ def save_user_like_genre(genres):
         print(f"Error saving genres: {e}")
         return f"Failed to save genre preferences: {e}"
 def chat_with_bot():
-    """Bắt đầu một phiên trò chuyện với trợ lý anime được hỗ trợ bởi Gemini."""
+    """Start a chat session with the anime assistant powered by Gemini."""
     try:
         load_dotenv()
         api_key = os.environ.get("GEMINI_API_KEY")
         if not api_key:
-            print("Hãy tạo một tệp .env và thêm GEMINI_API_KEY của cậu vào đó nhé.")
+            print("Please create a .env file and add your GEMINI_API_KEY to it.")
             return
 
         genai.configure(api_key=api_key)
 
-        # Định nghĩa các công cụ
+        # Define tools
         tools = [
             types.Tool(function_declarations=[get_user_like_genre_func]),
             types.Tool(function_declarations=[add_to_watchlist_declaration]),
@@ -177,15 +177,15 @@ def chat_with_bot():
             types.Tool(function_declarations=[watch_anime_func])
         ]
 
-        # Khởi tạo mô hình
+        # Initialize model
         model = genai.GenerativeModel(model_name="gemini-2.5-flash-lite", tools=tools)
 
-        # Mở "cuốn nhật ký hành trình" (lịch sử trò chuyện)
+        # Open chat history file
         initial_history_from_file = []
         try:
             with open("history.json", 'r', encoding='utf-8') as f:
                 loaded_history = json.load(f)
-                # Chuyển đổi lịch sử đã tải về sang định dạng Message
+                # Convert loaded history to Message format
                 for item in loaded_history:
                     role = item['role']
                     parts = []
@@ -208,101 +208,100 @@ def chat_with_bot():
         except (FileNotFoundError, json.JSONDecodeError):
             initial_history_from_file = []
 
-        print("Trợ lý anime đã sẵn sàng. Cậu có thể bắt đầu trò chuyện.")
+        print("Anime assistant is ready. You can start chatting.")
 
         
         if not initial_history_from_file:
             initial_prompt = (
-                "Bạn là một trợ lý anime. Bạn có thể giúp user nhiều việc "
-                "như thêm anime vào danh sách xem, tìm kiếm và gợi ý anime dựa trên sở thích and automatic stop when user wants to quit.You can call functions to open an anime when user want. "
-                "Để bắt đầu, hãy hỏi user thích những thể loại anime nào không?"
+                "You are an anime assistant. You can help users with many things"
+                "like adding anime to the watch list, searching and suggesting anime based on interests and automatically stop when user wants to quit. You can call functions to open an anime when the user requests it. "
+                "To start, ask the user what types of anime they like?"
             )
-            # Khởi tạo chat mà không có lịch sử, sau đó gửi prompt ban đầu
+            # Start chat without history, then send the initial prompt
             chat = model.start_chat()
             response = chat.send_message(initial_prompt)
-            print(f"Trợ lý: {response.text}")
-            # Lịch sử được chat quản lý tự động
+            print(f"assistant: {response.text}")
+            # Chat manages its own history
         else:
-            # Khởi tạo chat với lịch sử đã tải
+            # Start chat with loaded history
             chat = model.start_chat(history=initial_history_from_file)
-            # Nếu có lịch sử, in ra tin nhắn cuối cùng để người dùng biết đã đến đâu
+            # If there is history, print the last message so the user knows the state
             if chat.history:
                 last_message = chat.history[-1]
                 if last_message.role == 'model' and last_message.parts:
-                    print(f"Trợ lý (tiếp tục): {last_message.parts[0].text}")
+                    print(f"assistant (continuing): {last_message.parts[0].text}")
                 elif last_message.role == 'user' and last_message.parts:
-                     # Nếu tin nhắn cuối cùng là của người dùng, đợi mô hình phản hồi
-                    response = chat.send_message("...") # Gửi một tin nhắn trống để kích hoạt phản hồi
-                    print(f"Trợ lý (tiếp tục): {response.text}")
+                     # If the last message is from the user, wait for model response
+                    response = chat.send_message("...") # Send an empty message to trigger a response
+                    print(f"assistant (continuing): {response.text}")
 
 
         while True:
-            user_input = input("Bạn: ")
+            user_input = input("You: ")
             if user_input.lower() == 'quit':
-                print("Kết thúc cuộc trò chuyện. Hẹn gặp lại!")
+                print("Ending the chat. Goodbye!")
                 break
 
             response = chat.send_message(user_input)
             
-            # Xử lý các lệnh gọi hàm nếu có
+            # Handle function calls if present
             try:
-                # Kiểm tra function_call trong các phần của phản hồi
+                # Check for function_call in response parts
                 function_call_handled = False
                 for part in response.parts:
                     if hasattr(part, 'function_call') and part.function_call:
                         fc = part.function_call
                         function_name = fc.name
                         try:
-                            function_args = dict(fc.args) # Chuyển đổi args thành dict
+                            function_args = dict(fc.args) # Convert args to dict
                         except Exception as e:
-                            print(f"Lỗi khi phân tích cú pháp args của function_call: {e}")
+                            print(f"Error parsing function_call args: {e}")
                             break
                         if function_name == "get_user_like_genre":
                             genres = function_args.get("genres", [])
                             result = save_user_like_genre(genres)
-                            print(f"Trợ lý: {result}")
-                            # Gửi kết quả của hàm trở lại mô hình
+                            print(f"assistant: {result}")
+                            # Send function result back to the model
                             chat.send_message([{"function_response": {"name": "get_user_like_genre", "response": {"result": result}}}])
                             function_call_handled = True
-                            # Sau khi gửi FunctionResponse, mô hình sẽ phản hồi lại, không in văn bản ngay lập tức
-                            # Chúng ta sẽ chờ vòng lặp tiếp theo để mô hình phản hồi
-                            break # Đã xử lý function_call, thoát vòng lặp parts
+                            # After sending FunctionResponse, the model will respond; wait for next loop
+                            break
                         elif function_name == "add_to_watchlist_func":
                             anime_title = function_args.get("anime_title", "")
                             result = add_to_watchlist_func(anime_title)
-                            print(f"Trợ lý: {result}")
-                            # Gửi kết quả của hàm trở lại mô hình
-                            chat.send_message([{"function_response": {"name": "get_user_like_genre", "response": {"result": result}}}])
+                            print(f"assistant: {result}")
+                            # Send function result back to the model
+                            chat.send_message([{"function_response": {"name": "add_to_watchlist_func", "response": {"result": result}}}])
                             function_call_handled = True
-                            break # Đã xử lý function_call, thoát vòng lặp parts
+                            break
                         elif function_name == "quit_chat":
-                            print(f"Tro ly:Kết thúc cuộc trò chuyện theo yêu cầu của bạn. Hẹn gặp lại!")
+                            print("Assistant: Ending the chat per your request. Goodbye!")
                             chat.send_message([{"function_response": {"name": "quit_chat", "response": {"result": "Chat ended by user request."}}}])
                             function_call_handled = True
                             return
                         elif function_name == "watch_anime":
                             anime_title = function_args.get("anime_title", "")
                             result = find_n_watch_anime(anime_title)
-                            print(f"Trợ lý: {result}")
-                            # Gửi kết quả của hàm trở lại mô hình
+                            print(f"assistant: {result}")
+                            # Send function result back to the model
                             chat.send_message([{"function_response": {"name": "watch_anime", "response": {"result": result}}}])
                             function_call_handled = True
-                            break # Đã xử lý function_call, thoát vòng lặp parts
+                            break
                         else:
-                            print(f"Trợ lý đã gọi một hàm không xác định: {function_name}")
+                            print(f"assistant called an unknown function: {function_name}")
                             function_call_handled = True
-                            break # Đã xử lý function_call, thoát vòng lặp parts
+                            break
 
-                # Nếu không có function_call nào được xử lý và có văn bản, in văn bản phản hồi của trợ lý
+                # If no function call was handled and there is text, print assistant text
                 if not function_call_handled and response.text:
-                    print(f"Trợ lý: {response.text}")
+                    print(f"assistant: {response.text}")
 
             except Exception as e:
-                print(f"Lỗi khi xử lý function_call hoặc phản hồi văn bản: {e}")
-                if response.text: # In văn bản nếu có lỗi trong function_call
-                    print(f"Trợ lý: {response.text}")
+                print(f"Error handling function_call or text response: {e}")
+                if response.text: # Print text if there was an error in function_call handling
+                    print(f"assistant: {response.text}")
 
-        # Ghi lại toàn bộ cuộc hành trình vào nhật ký trước khi tạm biệt
+        # Save full conversation history before exiting
         final_history = chat.history
         serialized_history = []
         for message in final_history:
@@ -317,15 +316,15 @@ def chat_with_bot():
                 #elif isinstance(part, types.FunctionResponse):
                 #    parts_list.append({"function_response": {"name": part.name, "response": part.response}})
                 else:
-                    # Xử lý các loại phần khác nếu có
-                    parts_list.append(str(part)) # Fallback để lưu trữ dưới dạng chuỗi
+                    # Handle other part types if present
+                    parts_list.append(str(part)) # Fallback to store as string
             serialized_history.append({"role": message.role, "parts": parts_list})
 
         with open("history.json", 'w', encoding='utf-8') as f:
             json.dump(serialized_history, f, ensure_ascii=False, indent=4)
-            print("Lịch sử trò chuyện đã được lưu lại trong 'history.json'.")
+            print("Chat history saved to 'history.json'.")
     except Exception as e:
-        print(f"Có một sự cố đã xảy ra: {e}")
+        print(f"An error occurred: {e}")
 
 if __name__ == "__main__":
     chat_with_bot()
