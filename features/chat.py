@@ -18,6 +18,8 @@ from dotenv import load_dotenv
 import google.generativeai as genai
 from google.generativeai import types
 from features.watch_list import get_watchlist, save_watchlist
+from features.watch_anime import watch_anime
+from mal import AnimeSearch
 
 # Định nghĩa các hàm công cụ
 
@@ -59,7 +61,38 @@ quit_func = {
         "properties": {}
     }
 }
+watch_anime_func = {
+    "name": "watch_anime",
+    "description": "Bắt đầu xem một anime.",
+    "parameters": {
+        "type": "object",
+        "properties": {
+            "anime_title": {
+                "type": "string",
+                "description": "Tiêu đề của anime cần xem."
+            }
+        },
+        "required": ["anime_title"]
+    }
+}                
+def find_n_watch_anime(anime_title):
+    """Tìm và mở anime để xem."""
+    try:
+        watch_anime(anime_title)
+        return f"Đang mở anime '{anime_title}' để xem."
+    except Exception as e:
+        #return f"Không thể mở anime '{anime_title}'"
+        search = AnimeSearch(anime_title)
+        if search.results:
+            first_result = search.results[0]
+            title = first_result.title
+            print(f"Không thể mở anime '{anime_title}'. Tuy nhiên, tôi đã tìm thấy: {title}")
+            watch_anime(title)
+            return f"Đang mở anime '{title}' để xem."
+        else:
+            return f"Không thể tìm thấy anime '{anime_title}'."
 
+        
 def add_to_watchlist_func(anime_title):
     """Adds an anime to the watchlist."""
     # Validate input
@@ -140,7 +173,8 @@ def chat_with_bot():
         tools = [
             types.Tool(function_declarations=[get_user_like_genre_func]),
             types.Tool(function_declarations=[add_to_watchlist_declaration]),
-            types.Tool(function_declarations=[quit_func])
+            types.Tool(function_declarations=[quit_func]),
+            types.Tool(function_declarations=[watch_anime_func])
         ]
 
         # Khởi tạo mô hình
@@ -180,7 +214,7 @@ def chat_with_bot():
         if not initial_history_from_file:
             initial_prompt = (
                 "Bạn là một trợ lý anime. Bạn có thể giúp user nhiều việc "
-                "như thêm anime vào danh sách xem, tìm kiếm và gợi ý anime dựa trên sở thích va automatic stop when user wants to quit. "
+                "như thêm anime vào danh sách xem, tìm kiếm và gợi ý anime dựa trên sở thích and automatic stop when user wants to quit.You can call functions to open an anime when user want. "
                 "Để bắt đầu, hãy hỏi user thích những thể loại anime nào không?"
             )
             # Khởi tạo chat mà không có lịch sử, sau đó gửi prompt ban đầu
@@ -246,6 +280,14 @@ def chat_with_bot():
                             chat.send_message([{"function_response": {"name": "quit_chat", "response": {"result": "Chat ended by user request."}}}])
                             function_call_handled = True
                             return
+                        elif function_name == "watch_anime":
+                            anime_title = function_args.get("anime_title", "")
+                            result = find_n_watch_anime(anime_title)
+                            print(f"Trợ lý: {result}")
+                            # Gửi kết quả của hàm trở lại mô hình
+                            chat.send_message([{"function_response": {"name": "watch_anime", "response": {"result": result}}}])
+                            function_call_handled = True
+                            break # Đã xử lý function_call, thoát vòng lặp parts
                         else:
                             print(f"Trợ lý đã gọi một hàm không xác định: {function_name}")
                             function_call_handled = True
