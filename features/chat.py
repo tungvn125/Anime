@@ -51,6 +51,14 @@ add_to_watchlist_declaration = {
         "required": ["anime_title"]
     }
 }
+quit_func = {
+    "name": "quit_chat",
+    "description": "Kết thúc phiên trò chuyện với trợ lý anime.",
+    "parameters": {
+        "type": "object",
+        "properties": {}
+    }
+}
 
 def add_to_watchlist_func(anime_title):
     """Adds an anime to the watchlist."""
@@ -131,7 +139,8 @@ def chat_with_bot():
         # Định nghĩa các công cụ
         tools = [
             types.Tool(function_declarations=[get_user_like_genre_func]),
-            types.Tool(function_declarations=[add_to_watchlist_declaration])
+            types.Tool(function_declarations=[add_to_watchlist_declaration]),
+            types.Tool(function_declarations=[quit_func])
         ]
 
         # Khởi tạo mô hình
@@ -165,13 +174,13 @@ def chat_with_bot():
         except (FileNotFoundError, json.JSONDecodeError):
             initial_history_from_file = []
 
-        print("Trợ lý anime đã sẵn sàng. Cậu có thể bắt đầu trò chuyện (gõ 'quit' để kết thúc).")
+        print("Trợ lý anime đã sẵn sàng. Cậu có thể bắt đầu trò chuyện.")
 
         
         if not initial_history_from_file:
             initial_prompt = (
                 "Bạn là một trợ lý anime. Bạn có thể giúp user nhiều việc "
-                "như thêm anime vào danh sách xem, tìm kiếm và gợi ý anime dựa trên sở thích. "
+                "như thêm anime vào danh sách xem, tìm kiếm và gợi ý anime dựa trên sở thích va automatic stop when user wants to quit. "
                 "Để bắt đầu, hãy hỏi user thích những thể loại anime nào không?"
             )
             # Khởi tạo chat mà không có lịch sử, sau đó gửi prompt ban đầu
@@ -232,6 +241,11 @@ def chat_with_bot():
                             chat.send_message([{"function_response": {"name": "get_user_like_genre", "response": {"result": result}}}])
                             function_call_handled = True
                             break # Đã xử lý function_call, thoát vòng lặp parts
+                        elif function_name == "quit_chat":
+                            print(f"Tro ly:Kết thúc cuộc trò chuyện theo yêu cầu của bạn. Hẹn gặp lại!")
+                            chat.send_message([{"function_response": {"name": "quit_chat", "response": {"result": "Chat ended by user request."}}}])
+                            function_call_handled = True
+                            return
                         else:
                             print(f"Trợ lý đã gọi một hàm không xác định: {function_name}")
                             function_call_handled = True
