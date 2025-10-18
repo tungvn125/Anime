@@ -3,3 +3,5 @@
 /__pycache__
 /anime.csv
 /features/__pycache__
+/user_like_genre.json
+/watchlist.json
