@@ -15,6 +15,7 @@ limitations under the License."""
 import json
 import sys
 import os
+from simple_term_menu import TerminalMenu
 WATCHLIST_FILE = "watchlist.json"
 def get_watchlist():
     """Reads the watchlist from the JSON file."""
@@ -32,22 +33,23 @@ def save_watchlist(watchlist):
 # error. fix later
 def update_watchlist():
     """Updates the number of episodes watched for an anime."""
-    if len(sys.argv) > 3:
-        anime_title = sys.argv[2]
-        try:
-            episodes = int(sys.argv[3])
-            watchlist = get_watchlist()
-            for anime in watchlist["watchlist"]:
-                if anime["title"].lower() == anime_title.lower():
-                    anime["episodes_watched"] = episodes
-                    save_watchlist(watchlist)
-                    print(f"Updated '{anime_title}' to {episodes} episodes watched.")
-                    return
-            print(f"'{anime_title}' not found in your watchlist.")
-        except ValueError:
-            print("Please provide a valid number for episodes watched.")
-    else:
-        print("Please provide an anime title and the number of episodes watched.")
+    try:
+        watchlist = get_watchlist()
+        ter_menu = TerminalMenu([anime["title"] for anime in watchlist["watchlist"]])
+        menu_entry_index = ter_menu.show()
+        print(f"You selected: {watchlist['watchlist'][menu_entry_index]['title']}")
+        anime_title = watchlist["watchlist"][menu_entry_index]["title"]                 
+        for anime in watchlist["watchlist"]:
+            if anime["title"].lower() == anime_title.lower():
+                episodes = int(input(f"Enter the number of episodes watched for '{anime_title}': "))
+                anime["episodes_watched"] = episodes
+                save_watchlist(watchlist)
+                print(f"Updated '{anime_title}' to {episodes} episodes watched.")
+                return
+        print(f"'{anime_title}' not found in your watchlist.")
+    except ValueError:
+        print("Please provide a valid number for episodes watched.")
+
 
 def list_watchlist():
     """Lists all the anime in the watchlist."""

@@ -36,7 +36,6 @@ def main():
 
     if len(sys.argv) > 1:
         command = sys.argv[1]
-        print("All the watchlist modules are still in beta testing phase, please report any issues to the developer.")
         if command == "-s" or command == "--search":
             search_anime()
         elif command == "-rcm" or command == "--recommend":
