@@ -1,0 +1,181 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap');
+
+:root {
+    --primary-color: #d7a915; /* Green */
+    --secondary-color: #8eb929; /* Blue */
+    --text-color: #ffffff;
+    --card-background: rgba(28, 28, 28, 0.85);
+    --header-color: rgba(52, 73, 94, 0.8);
+    --glow-color: rgba(46, 204, 113, 0.7);
+    --border-radius: 10px;
+}
+
+body {
+    font-family: 'Roboto', sans-serif;
+    color: var(--text-color);
+    margin: 0;
+    padding: 0;
+    line-height: 1.6;
+    background: linear-gradient(45deg, #ba8426, #329d84, #3cb32c);
+    background-size: 400% 400%;
+    animation: gradientBG 15s ease infinite;
+}
+
+@keyframes gradientBG {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+.container {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+header {
+    text-align: center;
+    padding: 6rem 0;
+    animation: fadeInDown 1s ease-in-out;
+}
+
+@keyframes fadeInDown {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+header h1, h2, .feature-card h3 {
+    background: -webkit-linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-fill-color: transparent;
+}
+
+header h1 {
+    font-size: 4rem;
+    margin-bottom: 0.5rem;
+}
+
+header p {
+    font-size: 1.3rem;
+    font-style: italic;
+    opacity: 0.9;
+    color: var(--text-color);
+}
+
+section {
+    padding: 3rem;
+    background-color: var(--card-background);
+    margin-top: 2rem;
+    border-radius: var(--border-radius);
+    box-shadow: 0 0 25px rgba(0,0,0,0.6);
+    border-top: 1px solid var(--primary-color);
+}
+
+h2 {
+    text-align: center;
+    font-size: 2.8rem;
+    margin-bottom: 2.5rem;
+}
+
+.features-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 25px;
+}
+
+.feature-card {
+    background-color: var(--header-color);
+    padding: 25px;
+    border-radius: var(--border-radius);
+    text-align: center;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    border: 1px solid var(--primary-color);
+}
+
+.feature-card:hover {
+    transform: translateY(-10px) scale(1.05);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.4);
+}
+
+.feature-card h3 {
+    margin-top: 0;
+    font-size: 1.5rem;
+}
+
+pre {
+    background-color: rgba(0,0,0,0.7);
+    color: #f8f8f2;
+    padding: 20px;
+    border-radius: var(--border-radius);
+    overflow-x: auto;
+    border: 1px solid var(--primary-color);
+    box-shadow: 0 0 10px var(--glow-color);
+}
+
+code {
+    font-family: 'Courier New', Courier, monospace;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 2rem;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+}
+
+th, td {
+    padding: 15px;
+    text-align: left;
+    border-bottom: 1px solid var(--header-color);
+}
+
+th {
+    background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+    color: var(--text-color);
+}
+
+tbody tr {
+    background-color: var(--card-background);
+}
+
+tbody tr:nth-child(even) {
+    background-color: rgba(0,0,0,0.2);
+}
+
+tbody tr:hover {
+    background-color: var(--header-color);
+}
+
+footer {
+    text-align: center;
+    padding: 2rem 0;
+    margin-top: 2rem;
+}
+
+footer a {
+    color: var(--primary-color);
+    text-decoration: none;
+    transition: color 0.3s ease, text-shadow 0.3s ease;
+}
+
+footer a:hover {
+    color: var(--secondary-color);
+    text-shadow: 0 0 10px var(--glow-color);
+}
+
+a {
+    color: var(--primary-color);
+    transition: color 0.3s ease;
+}
+
+a:hover {
+    color: var(--secondary-color);
+}

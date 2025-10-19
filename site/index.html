@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Anime CLI</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <header>
+        <div class="container">
+            <h1>Anime CLI</h1>
+
+            <h3>For when you've finished Netflix and reality is just not cutting it.</h3>
+
+        </div>
+    </header>
+
+    <main class="container">
+
+        <section id="overview">
+            <h2>Overview</h2>
+            <p>Tired of endlessly scrolling for your next anime fix? Do you have more tabs open than you have friends? Let our Python-powered, AI-driven, coffee-brewing (okay, maybe not the coffee part... yet) toolkit do the heavy lifting.</p>
+            <p>It's like having a personal anime butler, but without the fancy uniform and the risk of them judging your questionable life choices.</p>
+        </section>
+
+        <section id="features">
+            <h2>Features</h2>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <h3>AI Chat Assistant</h3>
+                    <p>Chat with our resident AI otaku. It's a better listener than your cat.</p>
+                </div>
+                <div class="feature-card">
+                    <h3>Anime Search</h3>
+                    <p>Probably better than your memory for finding that one anime.</p>
+                </div>
+                <div class="feature-card">
+                    <h3>Watch Anime</h3>
+                    <p>Stream anime faster than you can say "Nani?!". Requires <code>ani-cli</code>.</p>
+                </div>
+                <div class="feature-card">
+                    <h3>Watchlist Management</h3>
+                    <p>Easier to manage than your real-life responsibilities.</p>
+                </div>
+                <div class="feature-card">
+                    <h3>Genre Management</h3>
+                    <p>Curate your taste. We won't judge. Much.</p>
+                </div>
+                <div class="feature-card">
+                    <h3>Anime Recommendations</h3>
+                    <p>So good, you'll wonder if it's reading your mind. (It's not. Probably.)</p>
+                </div>
+                 <div class="feature-card">
+                    <h3>Light Novel Search</h3>
+                    <p>For when you want to be *that person* who says, "The book was better."</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="installation">
+            <h2>Installation</h2>
+            <p>Ready to join the elite? Of course you are. Just follow these sacred instructions. It's less painful than a filler arc, we promise.</p>
+            <p><strong>Requires:</strong> Python 3.13, <a href="https://github.com/pystardust/ani-cli" target="_blank">ani-cli</a></p>
+            <pre><code># Clone this repository
+git clone https://github.com/tungvn125/Anime.git
+
+# Go into the project folder
+cd Anime
+
+# Install some packages
+pip install -r requirements.txt</code></pre>
+        </section>
+
+        <section id="usage">
+            <h2>Usage</h2>
+            <p>Using this is easier than understanding the plot of <em>Evangelion</em>. Just tell the script what you want.</p>
+            <p>To see all the available commands, run:</p>
+            <pre><code>python main.py --help</code></pre>
+        </section>
+
+        <section id="commands">
+            <h2>Commands</h2>
+            <p>Here are the secret incantations to bend the anime world to your will:</p>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Command</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code>-s, --search &lt;anime&gt;</code></td>
+                        <td>Prove to your friends that <em>Attack on Titan</em> is, in fact, an isekai.</td>
+                    </tr>
+                    <tr>
+                        <td><code>-rcm, --recommend</code></td>
+                        <td>Press this button when you're feeling lucky and need a new obsession.</td>
+                    </tr>
+                    <tr>
+                        <td><code>-a, --add &lt;anime&gt;</code></td>
+                        <td>Add an anime to the "I'll watch it later" pile.</td>
+                    </tr>
+                    <tr>
+                        <td><code>-u, --update &lt;anime&gt; &lt;eps&gt;</code></td>
+                        <td>Pretend you're making progress on your watchlist.</td>
+                    </tr>
+                    <tr>
+                        <td><code>-l, --list, -ls</code></td>
+                        <td>Stare at your ever-growing list of anime and contemplate your life choices.</td>
+                    </tr>
+                    <tr>
+                        <td><code>-c, --chat</code></td>
+                        <td>Your AI friend is waiting. Don't leave them hanging.</td>
+                    </tr>
+                    <tr>
+                        <td><code>-w, --watch &lt;anime&gt;</code></td>
+                        <td>The main event. Popcorn not included.</td>
+                    </tr>
+                    <tr>
+                        <td><code>-r, --read &lt;light novel&gt;</code></td>
+                        <td>Become more powerful than you can possibly imagine.</td>
+                    </tr>
+                    <tr>
+                        <td><code>-g, --genre</code></td>
+                        <td>Curate your taste like the sophisticated anime connoisseur you are.</td>
+                    </tr>
+                    <tr>
+                        <td><code>-h, --help</code></td>
+                        <td>For when you forget the command.</td>
+                    </tr>
+                </tbody>
+            </table>
+            <p><strong>Example:</strong></p>
+            <pre><code>python main.py -s "Frieren: Beyond Journey's End"</code></pre>
+        </section>
+
+        <section id="contributing">
+            <h2>Contributing</h2>
+            <p>Got ideas? Found a bug that's more annoying than an endless tutorial level? Don't just stand there, open a pull request! We welcome contributions more than a shonen protagonist welcomes a power-up.</p>
+            <p>See <a href="https://github.com/tungvn125/Anime/blob/main/CONTRIBUTING.md" target="_blank">CONTRIBUTING.md</a> for the boring details.</p>
+        </section>
+
+    </main>
+
+    <footer>
+        <div class="container">
+            <p><a href="https://github.com/tungvn125/Anime/issues" target="_blank">Issues (Where dreams go to be debugged)</a></p>            
+        </div>
+    </footer>
+
+</body>
+</html>
