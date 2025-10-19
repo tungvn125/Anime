@@ -19,6 +19,7 @@ import webbrowser
 from mal import AnimeSearch
 from simple_term_menu import TerminalMenu
 from features.watch_anime import watch_anime
+from features.chat import add_to_watchlist_func
 
 
 def search_anime():
@@ -39,6 +40,11 @@ def search_anime():
 
         # Display the search results
         c = 0
+        try:
+            max_results = int(input("Enter the number of results to display: "))
+        except ValueError:
+            print("Invalid input. Displaying 10 results by default.")
+            max_results = 10
         options = []
         if search.results:
             print(f"Search results for \"{anime_title}\":")
@@ -46,14 +52,14 @@ def search_anime():
                 #print(f"{c}. {result.title} (Score: {result.score})")
                 options.append(f"{result.title} (Score: {result.score})")
                 c += 1
-                if c >= 5:
+                if c >= max_results:
                     break
             options.append("(exit)")
             terminal_menu = TerminalMenu(options)
             menu_entry_index = terminal_menu.show()
             print(f"You selected: {options[menu_entry_index]}")
             if options[menu_entry_index] != "(exit)":
-                choice = ["watch", "view on web"]
+                choice = ["watch", "view on web", "add to watchlist", "(exit)"]
                 terminal_menu = TerminalMenu(choice)
                 choice_index = terminal_menu.show()
                 print(f"You selected: {choice[choice_index]}")
@@ -65,6 +71,10 @@ def search_anime():
                     print("enjoy your anime!")
                     time.sleep(1)
                     watch_anime(options[menu_entry_index].split(" (Score:")[0])
+                elif choice[choice_index] == "add to watchlist":
+                    add_to_watchlist_func(options[menu_entry_index].split(" (Score:")[0])
+                elif choice[choice_index] == "(exit)":
+                    pass
             else:
                 pass
             #print("(exit)")
