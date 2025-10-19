@@ -15,7 +15,7 @@ limitations under the License."""
 import json
 from mal import AnimeSearch
 from simple_term_menu import TerminalMenu
-from features.text import fetch_anime_by_genres
+from features.search_by_genres import fetch_anime_by_genres
 def recommend_anime():
     """Helps users find anime recommendations based on their genre preferences."""
     
