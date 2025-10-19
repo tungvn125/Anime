@@ -15,90 +15,64 @@ limitations under the License."""
 import json
 from mal import AnimeSearch
 from simple_term_menu import TerminalMenu
+from features.text import fetch_anime_by_genres
 def recommend_anime():
-    """
-    This function helps the user find anime recommendations based on their genre preferences.
-    """
-    print("Let's find some anime recommendations for you!")
+    """Helps users find anime recommendations based on their genre preferences."""
+    
+    def load_user_genres():
+        try:
+            with open("user_like_genre.json", 'r') as f:
+                return json.load(f)
+        except (FileNotFoundError, json.JSONDecodeError):
+            return []
 
-    try:
-        with open("user_like_genre.json", 'r') as f:
-            selected_genres = json.load(f)
-    except (FileNotFoundError, json.JSONDecodeError):
-        selected_genres = []
+    def get_recommendations(genres, is_single_genre=True):
+        try:
+            search = fetch_anime_by_genres(genres=genres, max_results=5)
+            if not search:
+                genre_str = genres[0] if is_single_genre else ", ".join(genres)
+                print(f"No recommendations found for {genre_str}.")
+            return search
+        except Exception as e:
+            print(f"An error occurred while searching: {e}")
+            return None
 
+    def save_recommendations(choice, selected_genres, recommendations):
+        with open("recommendations.txt", 'w') as f:
+            f.write(f"Anime recommendations for genres: {', '.join(selected_genres)}\n\n")
+            for rec in recommendations:
+                if rec:
+                    for anime in rec:
+                        f.write(f"{anime['title']['romaji']} ({anime['title']['english']})\n")
+                        f.write(f"  + Genres: {', '.join(anime['genres'])}\n")
+                        f.write(f"  + Score: {anime['averageScore']}\n\n")
+
+    # Main execution
+    selected_genres = load_user_genres()
     if not selected_genres:
         print("\nPlease chat with the bot first to save your genre preferences.")
         return
 
-    print("\nBased on your preferences, you like the following genres:")
-    for genre in selected_genres:
-        print(f"- {genre}")
-    print("\nHow would you like to receive your recommendations?")
-    choice = ["Each genre separately", "All genres combined", "Both", "Exit"]
-    terminal_menu = TerminalMenu(choice)
-    choice_index = terminal_menu.show()
-    print(f"You selected: {choice[choice_index]}")
-    if choice[choice_index] == "Exit":
+    print("\nYour preferred genres:", ", ".join(selected_genres))
+    
+    options = ["Each genre separately", "All genres combined", "Both", "Exit"]
+    menu = TerminalMenu(options)
+    choice = options[menu.show()]
+    
+    if choice == "Exit":
         return
-    if choice[choice_index] == "Each genre separately":
-        print("\nHere are some recommendations for you:")
+
+    recommendations = []
+    
+    if choice in ["Each genre separately", "Both"]:
         for genre in selected_genres:
-            try:
-                print(f"\n--- Recommendations for {genre} ---")
-                search = AnimeSearch(genre)
-                if search.results:
-                    # Limit the number of recommendations to 5 for each genre
-                    for i, result in enumerate(search.results):
-                        if i >= 5:
-                            break
-                        print(f"- {result.title} (Score: {result.score})")
-                else:
-                    print(f"No recommendations found for {genre}.")
-            except Exception as e:
-                print(f"An error occurred while searching for {genre}: {e}")
-    # recommendations for all genres
-    elif choice[choice_index] == "All genres combined":
-        print("\nHere are some recommendations for you:")
-        try:
-            print(f"\n--- Recommendations for all your preferred genres ---")
-            combined_genres = ' '.join(selected_genres)
-            search = AnimeSearch(combined_genres)
-            if search.results:
-                for i, result in enumerate(search.results):
-                    if i >= 5:
-                        break
-                    print(f"- {result.title} (Score: {result.score})")
-            else:
-                print("No recommendations found for your combined genres.")
-        except Exception as e:
-            print(f"An error occurred while searching for combined genres: {e}")
-    elif choice[choice_index] == "Both":
-        print("\nHere are some recommendations for you:")
-        for genre in selected_genres:
-            try:
-                print(f"\n--- Recommendations for {genre} ---")
-                search = AnimeSearch(genre)
-                if search.results:
-                    # Limit the number of recommendations to 5 for each genre
-                    for i, result in enumerate(search.results):
-                        if i >= 5:
-                            break
-                        print(f"- {result.title} (Score: {result.score})")
-                else:
-                    print(f"No recommendations found for {genre}.")
-            except Exception as e:
-                print(f"An error occurred while searching for {genre}: {e}")
-        try:
-            print(f"\n--- Recommendations for all your preferred genres ---")
-            combined_genres = ' '.join(selected_genres)
-            search = AnimeSearch(combined_genres)
-            if search.results:
-                for i, result in enumerate(search.results):
-                    if i >= 5:
-                        break
-                    print(f"- {result.title} (Score: {result.score})")
-            else:
-                print("No recommendations found for your combined genres.")
-        except Exception as e:
-            print(f"An error occurred while searching for combined genres: {e}")
+            recommendations.append(get_recommendations([genre]))
+
+    if choice in ["All genres combined", "Both"]:
+        recommendations.append(get_recommendations(selected_genres, False))
+
+    # Ask to save recommendations
+    print("\nSave result to 'recommendations.txt' ?:")
+    if TerminalMenu(["Yes", "No"]).show() == 0:
+        save_recommendations(choice, selected_genres, recommendations)
+        print("Recommendations saved to recommendations.txt")
