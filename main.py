@@ -55,9 +55,9 @@ def main():
         elif command == "-w" or command == "--watch":
             # Ani-cli package check
             try:
-                subprocess.run(["ani-clidd", "--version"], check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+                subprocess.run(["ani-cli", "--version"], check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             except (subprocess.CalledProcessError, FileNotFoundError):
-                print("Error: 'ani-clidd' is not installed or not found in PATH. Please install it from:  https://github.com/pystardust/ani-cli")
+                print("Error: 'ani-cli' is not installed or not found in PATH. Please install it from:  https://github.com/pystardust/ani-cli")
             if len(sys.argv) > 2:
                 watch_anime(' '.join(sys.argv[2:]))
             else:
