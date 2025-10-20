@@ -31,10 +31,28 @@ def fetch_anime_by_genres(genres=[], max_results=10):
   response = requests.post(url, json={"query": query, "variables": variables})
   data = response.json()
 
-  # Print results
-  print(f"\n------Anime Recommendations for {genres}------")
-  for anime in data["data"]["Page"]["media"]:
-      print(f"{anime['title']['romaji']} ({anime['title']['english']})")
-      print(f"  + Genres: {', '.join(anime['genres'])}")
-      print(f"  + Score: {anime['averageScore']}\n")
   return data["data"]["Page"]["media"]
+def collect_genres_from_anime(anime=""):
+    url = "https://graphql.anilist.co"
+
+    query = """
+    query ($search: String) {
+      Media(search: $search, type: ANIME) {
+        genres
+      }
+    }
+    """
+
+    variables = {
+        "search": anime
+    }
+
+    response = requests.post(url, json={"query": query, "variables": variables})
+    data = response.json()
+
+    if "data" in data and "Media" in data["data"]:
+        genres = data["data"]["Media"]["genres"]
+        return genres
+    else:
+        print(f"No genres found for anime: {anime}")
+        return []
