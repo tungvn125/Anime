@@ -15,14 +15,23 @@ limitations under the License."""
 import json
 from mal import AnimeSearch
 from simple_term_menu import TerminalMenu
-from features.search_by_genres import fetch_anime_by_genres
+from features.search_by_genres import fetch_anime_by_genres, collect_genres_from_anime
+
 def recommend_anime():
-    """Helps users find anime recommendations based on their genre preferences."""
+    """Helps users find anime recommendations based on their genre preferences and watchlist."""
     
     def load_user_genres():
         try:
             with open("user_like_genre.json", 'r') as f:
                 return json.load(f)
+        except (FileNotFoundError, json.JSONDecodeError):
+            return []
+
+    def load_watchlist():
+        try:
+            with open("watchlist.json", 'r') as f:
+                return json.load(f)
+            
         except (FileNotFoundError, json.JSONDecodeError):
             return []
 
@@ -49,30 +58,70 @@ def recommend_anime():
 
     # Main execution
     selected_genres = load_user_genres()
-    if not selected_genres:
-        print("\nPlease chat with the bot first to save your genre preferences.")
+    watchlist = load_watchlist()
+    if "watchlist" in watchlist and isinstance(watchlist["watchlist"], list):
+        watchlist = [anime["title"] for anime in watchlist["watchlist"]]
+        print(f"DEBUG: Watchlist loaded successfully.{watchlist}")
+        watchlist_genres = set()
+        for anime_name in watchlist:
+            print("DEBUG: Collecting genres for anime:", anime_name)
+            genres = collect_genres_from_anime(anime_name)
+            if genres:
+                watchlist_genres.update(genres)
+        print("DEBUG: Collected genres from watchlist:", watchlist_genres)
+        watchlist = list(watchlist_genres)
+    else:
+        watchlist = []
+        print("DEBUG: No watchlist found or invalid format.")
+
+
+    # Check if we have any data to work with
+    if not selected_genres and not watchlist:
+        print("\nNo preferences found. Please use the chat feature to set genre preferences or add anime to your watchlist.")
         return
 
-    print("\nYour preferred genres:", ", ".join(selected_genres))
+    # Display current preferences
+    print("\nCurrent Preferences:")
+    print(f"Genres: {', '.join(selected_genres) if selected_genres else 'None'}")
+    print(f"Watchlist items: {len(watchlist)}")
     
-    options = ["Each genre separately", "All genres combined", "Both", "Exit"]
-    menu = TerminalMenu(options)
-    choice = options[menu.show()]
+    # Setup recommendation options
+    options = ["Recommend by genres", "Recommend by watchlist", "Combined recommendations", "Exit"]
+    choice = options[TerminalMenu(options).show()]
     
     if choice == "Exit":
         return
 
     recommendations = []
     
-    if choice in ["Each genre separately", "Both"]:
-        for genre in selected_genres:
-            recommendations.append(get_recommendations([genre]))
+    # Get genre-based recommendations
+    if choice in ["Recommend by genres", "Combined recommendations"] and selected_genres:
+        genre_recs = get_recommendations(selected_genres, False)
+        if genre_recs:
+            print(f"\n------Anime Recommendations for your liked genres({genres})------")
+            for anime in genre_recs:
+                print(f"{anime['title']['romaji']} ({anime['title']['english']})")
+                print(f"  + Genres: {', '.join(anime['genres'])}")
+                print(f"  + Score: {anime['averageScore']}\n")
+            recommendations.append(genre_recs)
 
-    if choice in ["All genres combined", "Both"]:
-        recommendations.append(get_recommendations(selected_genres, False))
+    # Get watchlist-based recommendations
+    if choice in ["Recommend by watchlist", "Combined recommendations"] and watchlist:
+        if watchlist_genres:
+            watchlist_recs = get_recommendations(list(watchlist_genres), False)
+            if watchlist_recs:
+                print(f"\n------Anime Recommendations based on your Watchlist------")
+                for anime in watchlist_recs:
+                    print(f"{anime['title']['romaji']} ({anime['title']['english']})")
+                    print(f"  + Genres: {', '.join(anime['genres'])}")
+                    print(f"  + Score: {anime['averageScore']}\n")
+                recommendations.append(watchlist_recs)
 
-    # Ask to save recommendations
-    print("\nSave result to 'recommendations.txt' ?:")
-    if TerminalMenu(["Yes", "No"]).show() == 0:
-        save_recommendations(choice, selected_genres, recommendations)
-        print("Recommendations saved to recommendations.txt")
+    # Handle recommendations output
+    if recommendations:
+        save_option = TerminalMenu(["Yes", "No"], title="Save recommendations to 'recommendations.txt'?").show()
+        if save_option == 0:
+            save_recommendations(choice, selected_genres, recommendations)
+            print("\nRecommendations saved successfully to recommendations.txt")
+    else:
+        print("\nNo recommendations could be generated. Try different preferences or add more items to your watchlist.")
