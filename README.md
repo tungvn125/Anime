@@ -77,10 +77,6 @@ just run:
 python main.py
 ```
 
-**Example:**
-```bash
-python main.py -s "Frieren: Beyond Journey's End"
-```
 
 ## Contributing
 
