@@ -56,6 +56,10 @@
                     <h3>Light Novel Search</h3>
                     <p>For when you want to be *that person* who says, "The book was better."</p>
                 </div>
+                <div class="feature-card">
+                    <h3>Manga Manager</h3>
+                    <p>Search manga, get quick recommendations, and maintain a readlist (add/list) directly from the TUI or chat assistant.</p>
+                </div>
             </div>
         </section>
 
@@ -78,6 +82,29 @@ pip install -r requirements.txt</code></pre>
             <p>Using this is easier than understanding the plot of <em>Evangelion</em>. Just tell the script what you want.</p>
             <p>To see all the available commands, run:</p>
             <pre><code>python main.py --help</code></pre>
+            <p>Or run without arguments to open the interactive Terminal UI (TUI):</p>
+            <pre><code>python main.py</code></pre>
+        </section>
+
+        <section id="tui">
+            <h2>Interactive TUI</h2>
+            <p>Run the program without arguments to open an interactive terminal UI inspired by gemini-cli. The TUI exposes shortcuts for Chat, Search, Recommend, Watch, Read LN, Genre Manager, Watchlist, and the new Manga Manager.</p>
+            <p>It uses <code>simple-term-menu</code> to provide a keyboard-friendly selection interface and submenus for related actions.</p>
+        </section>
+
+        <section id="manga-manager">
+            <h2>Manga Manager</h2>
+            <p>The Manga Manager is a new feature available via the TUI and the AI chat assistant. It lets you:</p>
+            <ul>
+                <li>Search for manga (interactive results with quick actions like view on MAL or add to readlist).</li>
+                <li>Get simple keyword-based manga recommendations.</li>
+                <li>Maintain a persistent readlist saved to <code>readlist.json</code> (add and list items).</li>
+            </ul>
+        </section>
+
+        <section id="chat-calls">
+            <h2>Chat Function Calls</h2>
+            <p>The AI chat assistant can call functions to perform actions like adding anime to your watchlist, opening an anime to watch, or managing manga readlist items. When the assistant requests a function call, the CLI executes it and returns the function result to the model; the assistant's follow-up message is shown immediately.</p>
         </section>
 
         <section id="commands">
