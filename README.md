@@ -17,6 +17,7 @@ It's like having a personal anime butler, but without the fancy uniform and the 
 - **Genre Management**: Tell us you like "Slice of Life" and "Mecha". We won't judge. Much. This helps the AI give you recommendations that are *chef's kiss*.
 - **Anime Recommendations**: Our recommendation system is so good, you'll wonder if it's reading your mind. (It's not. Probably.)
 - **Light Novel Search**: For when you want to be *that person* who says, "The book was better."
+ - **Manga Manager**: New feature — search for manga, get simple recommendations, maintain a readlist (add/list).
 
 ## Installation
 
@@ -43,6 +44,31 @@ To see all the available command, run:
 ```bash
 python main.py --help
 ```
+
+Interactive TUI
+-----------------
+
+Run the program without arguments to open the interactive terminal UI inspired by gemini-cli. It includes shortcuts to all features (Chat, Search, Recommend, Watch, Read LN, Genre Manager, Watchlist, Manga Manager).
+
+Example: run the TUI
+
+```bash
+python main.py
+```
+
+Manga Manager
+-----------------
+
+The new Manga Manager is accessible via the TUI. It provides:
+- Search Manga: interactive search and quick actions (view on MAL, add to readlist)
+- Recommend Manga: simple recommendations based on a keyword
+- List Readlist: show items saved in `readlist.json`
+- Add to Readlist: add a manga title directly
+
+Chat Function Calls
+---------------------
+
+The AI chat assistant can now call functions for manga actions (add to readlist, list readlist, search, recommend). When the model requests a function call, the CLI executes it and sends the function result back to the model; the model's follow-up message is displayed immediately in the same request cycle.
 
 ## Commands
 
