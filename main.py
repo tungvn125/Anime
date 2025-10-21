@@ -25,6 +25,7 @@ from features.watch_anime import watch_anime
 from features.read_light_novel import read_light_novel
 from features.chat import add_to_watchlist_func
 from features.genre_manager import add_genre, remove_genre, list_genres, clear_genres
+from features.manga_manager import search_manga, recommend_manga, list_readlist, add_to_readlist
 
 
 
@@ -106,7 +107,73 @@ def main():
         else:
             print(f"Unknown command: {command}")
     else:
-        print("Please provide a command.")
+        # Launch interactive TUI similar to gemini-cli
+        menu_items = [
+            "Chat with AI",
+            "Search Anime",
+            "Recommend Anime",
+            "Watch Anime",
+            "Read Light Novel",
+            "Manage Genres",
+            "Watchlist",
+            "Manga Manager",
+            "Exit"
+        ]
+        terminal_menu = TerminalMenu(menu_items, title="Anime CLI - TUI")
+        while True:
+            idx = terminal_menu.show()
+            choice = menu_items[idx]
+            if choice == "Chat with AI":
+                chat_with_bot()
+            elif choice == "Search Anime":
+                search_anime()
+            elif choice == "Recommend Anime":
+                recommend_anime()
+            elif choice == "Watch Anime":
+                name = input("Enter anime title to watch: ")
+                if name.strip():
+                    watch_anime(name)
+            elif choice == "Read Light Novel":
+                read_light_novel()
+            elif choice == "Manage Genres":
+                g_choice = ["Add Genre", "Remove Genre", "List Genres", "Clear All Genres", "Back"]
+                gmenu = TerminalMenu(g_choice)
+                gi = gmenu.show()
+                if g_choice[gi] == "Add Genre":
+                    add_genre()
+                elif g_choice[gi] == "Remove Genre":
+                    remove_genre()
+                elif g_choice[gi] == "List Genres":
+                    list_genres()
+                elif g_choice[gi] == "Clear All Genres":
+                    confirm = input("Are you sure? (Y/n): ").strip().lower()
+                    if confirm == 'y' or confirm == '':
+                        clear_genres()
+            elif choice == "Watchlist":
+                wl_choice = ["List Watchlist", "Update Watchlist", "Back"]
+                wlmenu = TerminalMenu(wl_choice)
+                wi = wlmenu.show()
+                if wl_choice[wi] == "List Watchlist":
+                    list_watchlist()
+                elif wl_choice[wi] == "Update Watchlist":
+                    update_watchlist()
+            elif choice == "Manga Manager":
+                m_choice = ["Search Manga", "Recommend Manga", "List Readlist", "Add to Readlist", "Back"]
+                mmenu = TerminalMenu(m_choice)
+                mi = mmenu.show()
+                if m_choice[mi] == "Search Manga":
+                    search_manga()
+                elif m_choice[mi] == "Recommend Manga":
+                    recommend_manga()
+                elif m_choice[mi] == "List Readlist":
+                    list_readlist()
+                elif m_choice[mi] == "Add to Readlist":
+                    title = input("Enter manga title to add: ")
+                    if title.strip():
+                        print(add_to_readlist(title))
+            elif choice == "Exit":
+                print("Goodbye!")
+                return
 
 if __name__ == "__main__":
     main()
