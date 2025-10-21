@@ -20,6 +20,7 @@ from google.generativeai import types
 from features.watch_list import get_watchlist, save_watchlist
 from features.watch_anime import watch_anime
 from mal import AnimeSearch
+from features.manga_manager import add_to_readlist, list_readlist, search_manga, recommend_manga
 
 # Define tool functions
 
@@ -177,6 +178,42 @@ def chat_with_bot():
             types.Tool(function_declarations=[watch_anime_func])
         ]
 
+        # Manga related function declarations for the model
+        add_to_readlist_declaration = {
+            "name": "add_to_readlist",
+            "description": "Add a manga to the readlist.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "manga_title": {"type": "string", "description": "Title of the manga to add."}
+                },
+                "required": ["manga_title"]
+            }
+        }
+        list_readlist_declaration = {
+            "name": "list_readlist",
+            "description": "List items in the user's manga readlist.",
+            "parameters": {"type": "object", "properties": {}}
+        }
+        search_manga_declaration = {
+            "name": "search_manga",
+            "description": "Search for a manga by title.",
+            "parameters": {"type": "object", "properties": {"query": {"type": "string"}}, "required": ["query"]}
+        }
+        recommend_manga_declaration = {
+            "name": "recommend_manga",
+            "description": "Recommend manga based on a keyword or preferences. ",
+            "parameters": {"type": "object", "properties": {"keyword": {"type": "string"}}}
+        }
+
+        # add manga tools to toolset
+        tools.extend([
+            types.Tool(function_declarations=[add_to_readlist_declaration]),
+            types.Tool(function_declarations=[list_readlist_declaration]),
+            types.Tool(function_declarations=[search_manga_declaration]),
+            types.Tool(function_declarations=[recommend_manga_declaration])
+        ])
+
         # Initialize model
         model = genai.GenerativeModel(model_name="gemini-2.5-flash-lite", tools=tools)
 
@@ -214,7 +251,8 @@ def chat_with_bot():
         if not initial_history_from_file:
             initial_prompt = (
                 "You are an anime assistant. You can help users with many things"
-                "like adding anime to the watch list, searching and suggesting anime based on interests and automatically stop when user wants to quit. You can call functions to open an anime when the user requests it. "
+                "like adding anime to the watch list, searching and suggesting anime based on interests and automatically stop when user wants to quit. You can call functions to open an anime when the user requests it. " \
+                "dont answer after calling a function, these functions will handle the user requests. "
                 "To start, ask the user what types of anime they like?"
             )
             # Start chat without history, then send the initial prompt
@@ -262,16 +300,20 @@ def chat_with_bot():
                             result = save_user_like_genre(genres)
                             print(f"assistant: {result}")
                             # Send function result back to the model
-                            chat.send_message([{"function_response": {"name": "get_user_like_genre", "response": {"result": result}}}])
+                            follow = chat.send_message([{"function_response": {"name": "get_user_like_genre", "response": {"result": result}}}])
+                            # Print the model's follow-up response immediately if present
+                            if getattr(follow, 'text', None):
+                                print(f"assistant: {follow.text}")
                             function_call_handled = True
-                            # After sending FunctionResponse, the model will respond; wait for next loop
                             break
                         elif function_name == "add_to_watchlist_func":
                             anime_title = function_args.get("anime_title", "")
                             result = add_to_watchlist_func(anime_title)
                             print(f"assistant: {result}")
                             # Send function result back to the model
-                            chat.send_message([{"function_response": {"name": "add_to_watchlist_func", "response": {"result": result}}}])
+                            follow = chat.send_message([{"function_response": {"name": "add_to_watchlist_func", "response": {"result": result}}}])
+                            if getattr(follow, 'text', None):
+                                print(f"assistant: {follow.text}")
                             function_call_handled = True
                             break
                         elif function_name == "quit_chat":
@@ -284,7 +326,50 @@ def chat_with_bot():
                             result = find_n_watch_anime(anime_title)
                             print(f"assistant: {result}")
                             # Send function result back to the model
-                            chat.send_message([{"function_response": {"name": "watch_anime", "response": {"result": result}}}])
+                            follow = chat.send_message([{"function_response": {"name": "watch_anime", "response": {"result": result}}}])
+                            if getattr(follow, 'text', None):
+                                print(f"assistant: {follow.text}")
+                            function_call_handled = True
+                            break
+                        elif function_name == "add_to_readlist":
+                            manga_title = function_args.get("manga_title", "")
+                            result = add_to_readlist(manga_title)
+                            print(f"assistant: {result}")
+                            follow = chat.send_message([{"function_response": {"name": "add_to_readlist", "response": {"result": result}}}])
+                            if getattr(follow, 'text', None):
+                                print(f"assistant: {follow.text}")
+                            function_call_handled = True
+                            break
+                        elif function_name == "list_readlist":
+                            # Execute list and send an empty response back
+                            list_readlist()
+                            follow = chat.send_message([{"function_response": {"name": "list_readlist", "response": {"result": "Listed readlist."}}}])
+                            if getattr(follow, 'text', None):
+                                print(f"assistant: {follow.text}")
+                            function_call_handled = True
+                            break
+                        elif function_name == "search_manga":
+                            query = function_args.get("query", "")
+                            # search_manga interacts with user; if a query provided, run search flow
+                            if query:
+                                # We'll call the simple search flow by opening the interactive search
+                                print("Running interactive manga search...")
+                                search_manga()
+                                follow = chat.send_message([{"function_response": {"name": "search_manga", "response": {"result": "Search completed."}}}])
+                                if getattr(follow, 'text', None):
+                                    print(f"assistant: {follow.text}")
+                            else:
+                                search_manga()
+                            function_call_handled = True
+                            break
+                        elif function_name == "recommend_manga":
+                            keyword = function_args.get("keyword", "")
+                            if keyword:
+                                print(f"Finding manga recommendations for: {keyword}")
+                            recommend_manga()
+                            follow = chat.send_message([{"function_response": {"name": "recommend_manga", "response": {"result": "Recommendations displayed."}}}])
+                            if getattr(follow, 'text', None):
+                                print(f"assistant: {follow.text}")
                             function_call_handled = True
                             break
                         else:
