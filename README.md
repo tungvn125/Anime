@@ -72,11 +72,25 @@ The AI chat assistant can now call functions for manga actions (add to readlist,
 
 ## Commands
 
-just run:
-```bash
-python main.py
-```
+Here are the secret incantations to bend the anime world to your will:
 
+| Command | Description |
+|---|---|
+| `-s`, `--search <anime>` | Prove to your friends that *Attack on Titan* is, in fact, an isekai. |
+| `-rcm`, `--recommend` | Press this button when you're feeling lucky and need a new obsession. |
+| `-a`, `--add <anime>` | Add an anime to the "I'll watch it later" pile. |
+| `-u`, `--update <anime> <eps>`| Pretend you're making progress on your watchlist. |
+| `-l`, `--list`, `-ls` | Stare at your ever-growing list of anime and contemplate your life choices. |
+| `-c`, `--chat` | Your AI friend is waiting. Don't leave them hanging. |
+| `-w`, `--watch <anime>` | The main event. Popcorn not included. |
+| `-r`, `--read <light novel>` | Become more powerful than you can possibly imagine. |
+| `-g`, `--genre` | Curate your taste like the sophisticated anime connoisseur you are. |
+| `-h`, `--help` | For when you forget the command. |
+
+**Example:**
+```bash
+python main.py -s "Frieren: Beyond Journey's End"
+```
 
 ## Contributing
 
