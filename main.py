@@ -119,8 +119,11 @@ def main():
             "Manga Manager",
             "Exit"
         ]
-        terminal_menu = TerminalMenu(menu_items, title="Anime CLI - TUI")
+        terminal_menu = TerminalMenu(menu_items)
+        with open("logo.txt", "r", encoding="utf-8") as logo_file:
+            logo = logo_file.read()
         while True:
+            print(logo)
             idx = terminal_menu.show()
             choice = menu_items[idx]
             if choice == "Chat with AI":
