@@ -60,3 +60,42 @@ def list_watchlist():
             print(f"- {anime['title']} (Episodes watched: {anime['episodes_watched']})")
     else:
         print("Your watchlist is empty.")
+
+def add_to_watchlist_func(anime_title):
+    """Adds an anime to the watchlist."""
+    # Validate input
+    if not isinstance(anime_title, str):
+        try:
+            anime_title = str(anime_title)
+        except Exception:
+            return "Invalid anime title."
+
+    title = anime_title.strip()
+    if not title:
+        return "Anime title is empty."
+
+    # Load or initialize watchlist structure
+    watchlist = get_watchlist() or {"watchlist": []}
+    if not isinstance(watchlist, dict):
+        watchlist = {"watchlist": []}
+    if "watchlist" not in watchlist or not isinstance(watchlist["watchlist"], list):
+        watchlist["watchlist"] = []
+
+    # Check for duplicates (case-insensitive, trimmed)
+    for anime in watchlist["watchlist"]:
+        existing_title = ""
+        if isinstance(anime, dict):
+            existing_title = str(anime.get("title", "")).strip()
+        else:
+            existing_title = str(anime).strip()
+        if existing_title.lower() == title.lower():
+            return f"'{title}' is already in your watchlist."
+
+    # Append and save
+    watchlist["watchlist"].append({"title": title, "episodes_watched": 0})
+    try:
+        save_watchlist(watchlist)
+    except Exception as e:
+        return f"Failed to save watchlist: {e}"
+
+    return f"Added '{title}' to your watchlist."

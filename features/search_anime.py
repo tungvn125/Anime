@@ -19,7 +19,7 @@ import webbrowser
 from mal import AnimeSearch
 from simple_term_menu import TerminalMenu
 from features.watch_anime import watch_anime
-from features.chat import add_to_watchlist_func
+from features.watch_list import add_to_watchlist_func
 
 
 def search_anime():
