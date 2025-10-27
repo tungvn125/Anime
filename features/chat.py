@@ -17,10 +17,15 @@ import json
 from dotenv import load_dotenv
 import google.generativeai as genai
 from google.generativeai import types
-from features.watch_list import get_watchlist, save_watchlist
+from features.watch_list import get_watchlist, save_watchlist, add_to_watchlist_func
 from features.watch_anime import watch_anime
 from mal import AnimeSearch
 from features.manga_manager import add_to_readlist, list_readlist, search_manga, recommend_manga
+from features.genre_manager import add_genre, clear_genres, list_genres, remove_genre
+from features.rcm_system import recommend_anime
+from features.read_light_novel import read_light_novel
+from features.search_anime import search_anime
+from features.watch_list import list_watchlist, update_watchlist
 
 # Define tool functions
 
@@ -76,6 +81,90 @@ watch_anime_func = {
         "required": ["anime_title"]
     }
 }                
+search_anime_declaration = {
+    "name": "search_anime_feature",
+    "description": "Search for an anime.",
+    "parameters": {
+        "type": "object",
+        "properties": {
+            "title": {
+                "type": "string",
+                "description": "The title of the anime to search for."
+            }
+        },
+        "required": ["title"]
+    }
+}
+
+read_light_novel_declaration = {
+    "name": "read_light_novel_feature",
+    "description": "Search for a light novel to read.",
+    "parameters": {
+        "type": "object",
+        "properties": {
+            "title": {
+                "type": "string",
+                "description": "The title of the light novel."
+            }
+        },
+        "required": ["title"]
+    }
+}
+
+list_genres_declaration = {
+    "name": "list_genres",
+    "description": "List the user's preferred anime genres.",
+    "parameters": {"type": "object", "properties": {}}
+}
+
+remove_genre_declaration = {
+    "name": "remove_genre",
+    "description": "Remove a genre from the user's preferred anime genres.",
+    "parameters": {"type": "object", "properties": {}}
+}
+
+add_genre_declaration = {
+    "name": "add_genre",
+    "description": "Add a genre to the user's preferred anime genres.",
+    "parameters": {"type": "object", "properties": {}}
+}
+
+clear_genres_declaration = {
+    "name": "clear_genres",
+    "description": "Clear all of the user's preferred anime genres.",
+    "parameters": {"type": "object", "properties": {}}
+}
+
+recommend_anime_declaration = {
+    "name": "recommend_anime",
+    "description": "Recommend anime to the user based on their preferences.",
+    "parameters": {"type": "object", "properties": {}}
+}
+
+list_watchlist_declaration = {
+    "name": "list_watchlist",
+    "description": "List all anime in the user's watchlist.",
+    "parameters": {"type": "object", "properties": {}}
+}
+
+update_watchlist_declaration = {
+    "name": "update_watchlist",
+    "description": "Update the number of episodes watched for an anime in the watchlist.",
+    "parameters": {"type": "object", "properties": {}}
+}
+
+def search_anime_wrapper(title):
+    import sys
+    sys.argv = ["", ""] + title.split(" ")
+    search_anime()
+    return "Interactive anime search started."
+
+def read_light_novel_wrapper(title):
+    import sys
+    sys.argv = ["", ""] + title.split(" ")
+    read_light_novel()
+    return f"Searching for light novel '{title}'."
+
 def find_n_watch_anime(anime_title):
     """Find and open an anime to watch."""
     try:
@@ -94,44 +183,7 @@ def find_n_watch_anime(anime_title):
             return f"Could not find anime '{anime_title}'."
 
         
-def add_to_watchlist_func(anime_title):
-    """Adds an anime to the watchlist."""
-    # Validate input
-    if not isinstance(anime_title, str):
-        try:
-            anime_title = str(anime_title)
-        except Exception:
-            return "Invalid anime title."
 
-    title = anime_title.strip()
-    if not title:
-        return "Anime title is empty."
-
-    # Load or initialize watchlist structure
-    watchlist = get_watchlist() or {"watchlist": []}
-    if not isinstance(watchlist, dict):
-        watchlist = {"watchlist": []}
-    if "watchlist" not in watchlist or not isinstance(watchlist["watchlist"], list):
-        watchlist["watchlist"] = []
-
-    # Check for duplicates (case-insensitive, trimmed)
-    for anime in watchlist["watchlist"]:
-        existing_title = ""
-        if isinstance(anime, dict):
-            existing_title = str(anime.get("title", "")).strip()
-        else:
-            existing_title = str(anime).strip()
-        if existing_title.lower() == title.lower():
-            return f"'{title}' is already in your watchlist."
-
-    # Append and save
-    watchlist["watchlist"].append({"title": title, "episodes_watched": 0})
-    try:
-        save_watchlist(watchlist)
-    except Exception as e:
-        return f"Failed to save watchlist: {e}"
-
-    return f"Added '{title}' to your watchlist."
 
 def save_user_like_genre(genres):
     """Saves the user's liked genres to a JSON file."""
@@ -159,7 +211,7 @@ def save_user_like_genre(genres):
     except Exception as e:
         print(f"Error saving genres: {e}")
         return f"Failed to save genre preferences: {e}"
-def chat_with_bot():
+def chat_with_bot(first_prompt: str = None):
     """Start a chat session with the anime assistant powered by Gemini."""
     try:
         load_dotenv()
@@ -211,7 +263,16 @@ def chat_with_bot():
             types.Tool(function_declarations=[add_to_readlist_declaration]),
             types.Tool(function_declarations=[list_readlist_declaration]),
             types.Tool(function_declarations=[search_manga_declaration]),
-            types.Tool(function_declarations=[recommend_manga_declaration])
+            types.Tool(function_declarations=[recommend_manga_declaration]),
+            types.Tool(function_declarations=[search_anime_declaration]),
+            types.Tool(function_declarations=[read_light_novel_declaration]),
+            types.Tool(function_declarations=[list_genres_declaration]),
+            types.Tool(function_declarations=[remove_genre_declaration]),
+            types.Tool(function_declarations=[add_genre_declaration]),
+            types.Tool(function_declarations=[clear_genres_declaration]),
+            types.Tool(function_declarations=[recommend_anime_declaration]),
+            types.Tool(function_declarations=[list_watchlist_declaration]),
+            types.Tool(function_declarations=[update_watchlist_declaration]),
         ])
 
         # Initialize model
@@ -259,6 +320,13 @@ def chat_with_bot():
             chat = model.start_chat()
             response = chat.send_message(initial_prompt)
             print(f"assistant: {response.text}")
+            # first prompt handled here
+            if first_prompt:
+                response = chat.send_message(first_prompt)
+                print(f"assistant: {response.text}")
+            else:
+                # No first prompt, continue as normal
+                pass
             # Chat manages its own history
         else:
             # Start chat with loaded history
@@ -272,8 +340,14 @@ def chat_with_bot():
                      # If the last message is from the user, wait for model response
                     response = chat.send_message("...") # Send an empty message to trigger a response
                     print(f"assistant (continuing): {response.text}")
-
-
+            # handle first prompt if provided
+            if first_prompt:
+                response = chat.send_message(first_prompt)
+                print(f"assistant: {response.text}")
+            else:
+                # No first prompt, continue as normal
+                pass
+        
         while True:
             user_input = input("You: ")
             if user_input.lower() == 'quit':
@@ -326,7 +400,7 @@ def chat_with_bot():
                             result = find_n_watch_anime(anime_title)
                             print(f"assistant: {result}")
                             # Send function result back to the model
-                            follow = chat.send_message([{"function_response": {"name": "watch_anime", "response": {"result": result}}}])
+                            follow = chat.send_message([{"function_response": {"name": "watch_anime", "response": {"result": "Watch anime sucsesful"}}}])
                             if getattr(follow, 'text', None):
                                 print(f"assistant: {follow.text}")
                             function_call_handled = True
@@ -368,6 +442,87 @@ def chat_with_bot():
                                 print(f"Finding manga recommendations for: {keyword}")
                             recommend_manga()
                             follow = chat.send_message([{"function_response": {"name": "recommend_manga", "response": {"result": "Recommendations displayed."}}}])
+                            if getattr(follow, 'text', None):
+                                print(f"assistant: {follow.text}")
+                            function_call_handled = True
+                            break
+                        elif function_name == "search_anime_feature":
+                            title = function_args.get("title", "")
+                            result = search_anime_wrapper(title)
+                            print(f"assistant: {result}")
+                            follow = chat.send_message([{"function_response": {"name": "search_anime_feature", "response": {"result": result}}}])
+                            if getattr(follow, 'text', None):
+                                print(f"assistant: {follow.text}")
+                            function_call_handled = True
+                            break
+                        elif function_name == "read_light_novel_feature":
+                            title = function_args.get("title", "")
+                            result = read_light_novel_wrapper(title)
+                            print(f"assistant: {result}")
+                            follow = chat.send_message([{"function_response": {"name": "read_light_novel_feature", "response": {"result": result}}}])
+                            if getattr(follow, 'text', None):
+                                print(f"assistant: {follow.text}")
+                            function_call_handled = True
+                            break
+                        elif function_name == "list_genres":
+                            list_genres()
+                            result = "Listed user's preferred genres."
+                            print(f"assistant: {result}")
+                            follow = chat.send_message([{"function_response": {"name": "list_genres", "response": {"result": result}}}])
+                            if getattr(follow, 'text', None):
+                                print(f"assistant: {follow.text}")
+                            function_call_handled = True
+                            break
+                        elif function_name == "remove_genre":
+                            remove_genre()
+                            result = "Interactive genre removal started."
+                            print(f"assistant: {result}")
+                            follow = chat.send_message([{"function_response": {"name": "remove_genre", "response": {"result": result}}}])
+                            if getattr(follow, 'text', None):
+                                print(f"assistant: {follow.text}")
+                            function_call_handled = True
+                            break
+                        elif function_name == "add_genre":
+                            add_genre()
+                            result = "Interactive genre adding started."
+                            print(f"assistant: {result}")
+                            follow = chat.send_message([{"function_response": {"name": "add_genre", "response": {"result": result}}}])
+                            if getattr(follow, 'text', None):
+                                print(f"assistant: {follow.text}")
+                            function_call_handled = True
+                            break
+                        elif function_name == "clear_genres":
+                            clear_genres()
+                            result = "Cleared all preferred genres."
+                            print(f"assistant: {result}")
+                            follow = chat.send_message([{"function_response": {"name": "clear_genres", "response": {"result": result}}}])
+                            if getattr(follow, 'text', None):
+                                print(f"assistant: {follow.text}")
+                            function_call_handled = True
+                            break
+                        elif function_name == "recommend_anime":
+                            recommend_anime()
+                            result = "Anime recommendation process started."
+                            print(f"assistant: {result}")
+                            follow = chat.send_message([{"function_response": {"name": "recommend_anime", "response": {"result": result}}}])
+                            if getattr(follow, 'text', None):
+                                print(f"assistant: {follow.text}")
+                            function_call_handled = True
+                            break
+                        elif function_name == "list_watchlist":
+                            list_watchlist()
+                            result = "Listed anime in watchlist."
+                            print(f"assistant: {result}")
+                            follow = chat.send_message([{"function_response": {"name": "list_watchlist", "response": {"result": result}}}])
+                            if getattr(follow, 'text', None):
+                                print(f"assistant: {follow.text}")
+                            function_call_handled = True
+                            break
+                        elif function_name == "update_watchlist":
+                            update_watchlist()
+                            result = "Interactive watchlist update process started."
+                            print(f"assistant: {result}")
+                            follow = chat.send_message([{"function_response": {"name": "update_watchlist", "response": {"result": result}}}])
                             if getattr(follow, 'text', None):
                                 print(f"assistant: {follow.text}")
                             function_call_handled = True
